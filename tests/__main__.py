@@ -1,15 +1,51 @@
 from __future__ import absolute_import
 
+import argparse
+from collections import namedtuple
 import os
 import os.path
 import subprocess
 import sys
 import unittest
-from collections import namedtuple
 
 from xmlrunner import XMLTestRunner
 
 from . import TEST_ROOT, PROJECT_ROOT, VENDORED_ROOTS
+
+def convert_argv_new(argv):
+    """Obtiain command line arguments and setup the test run accordingly."""
+
+    parser = argparse.ArgumentParser(
+        description="Run tests associated to the PTVSD project."
+    )
+    parser.add_argument(
+        "-q",
+        "--quick",
+        help="Only do the tests under test/ptvsd.",
+        action="store_true"
+        )
+    parser.add_argument(
+        "--quick-py2", 
+        help="Only do the tests under test/ptvsd, that are compatible with Python 2.x.",
+        action="store_true"
+    )
+    parser.add_argument(
+        "-n",
+        "--network",
+        help="Perform the tests that require network connectivity. Default is to skip these.",
+        action="store_true"
+    )
+    parser.add_argument(
+        "-c",
+        "--coverage",
+        help="Generate code coverage report.",
+        action="store_true"
+    )
+    parser.add_argument(
+        "-l",
+        "--lint",
+        help="Run and report on Linter "
+    )
 
 
 def convert_argv(argv):
@@ -95,8 +131,8 @@ def convert_argv(argv):
     else:
         args = env = None
 
-    RunArgs = namedtuple('RunArgs', 'argv, env, junit_xml_file')
-    return runtests, lint, RunArgs(argv=args, env=env, junit_xml_file=junit_xml_file)
+    runargs = (argv, env, junit_xml_file) if runtests else None
+    return runargs, lint
 
 
 def fix_sys_path():
@@ -158,18 +194,19 @@ def run_tests(argv, env, junit_report_file, coverage=False):
         unittest.main(module=None,argv=argv)
 
 if __name__ == '__main__':
-    runtests, lint, runtest_args = convert_argv(sys.argv[1:])
+    runargs, lint = convert_argv(sys.argv[1:])
     fix_sys_path()
     if lint:
         check_lint()
-    if runtests:
-        if '--start-directory' in runtest_args.argv:
-            start = runtest_args.argv[runtest_args.argv.index('--start-directory') + 1]
+    if runargs:
+        argv, env, junit_xml_file = runargs
+        if '--start-directory' in argv:
+            start = argv[argv.index('--start-directory') + 1]
             print('(will look for tests under {})'.format(start))
 
         run_tests(
-            runtest_args.argv,
-            runtest_args.env,
-            runtest_args.junit_xml_file,
+            argv,
+            env,
+            junit_xml_file,
             coverage=(runtests == 'coverage'),
         )
