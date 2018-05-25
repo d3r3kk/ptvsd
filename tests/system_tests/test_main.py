@@ -84,6 +84,7 @@ class TestsBase(object):
 
 class CLITests(TestsBase, unittest.TestCase):
 
+    @skipIf(sys.platform.startswith("mac", "TODO: Fix on macOS"))
     def test_script_args(self):
         lockfile = self.workspace.lockfile()
         donescript, lockwait = lockfile.wait_for_script()
@@ -109,6 +110,7 @@ class CLITests(TestsBase, unittest.TestCase):
         self.assertEqual(out.decode('utf-8').strip().splitlines()[-1],
                          u"[{!r}, '--eggs']".format(filename))
 
+    @skipIf(sys.platform.startswith("mac", "TODO: Fix on macOS"))
     def test_run_to_completion(self):
         filename = self.pathentry.write_module('spam', """
             import sys
@@ -127,6 +129,7 @@ class CLITests(TestsBase, unittest.TestCase):
         self.assertIn('done', out.splitlines())
         self.assertEqual(rc, 0)
 
+    @skipIf(sys.platform.startswith("mac", "TODO: Fix on macOS"))
     def test_failure(self):
         filename = self.pathentry.write_module('spam', """
             import sys
@@ -204,6 +207,7 @@ class LifecycleTests(TestsBase, unittest.TestCase):
         expected = [parse_message(msg) for msg in expected]
         self.assertEqual(received, expected)
 
+    @skipIf(sys.platform.startswith("mac", "TODO: Fix on macOS"))
     def test_pre_init(self):
         filename = self.pathentry.write_module('spam', '')
         handlers, wait_for_started = self._wait_for_started()
@@ -267,6 +271,7 @@ class LifecycleTests(TestsBase, unittest.TestCase):
             self.new_event('terminated'),
         ])
 
+    @skipIf(sys.platform.startswith("mac", "TODO: Fix on macOS"))   
     def test_launch_ptvsd_server(self):
         lockfile = self.workspace.lockfile()
         done, waitscript = lockfile.wait_in_script()
@@ -297,6 +302,7 @@ class LifecycleTests(TestsBase, unittest.TestCase):
             self.new_event('terminated'),
         ])
 
+    @skipIf(sys.platform.startswith("mac", "TODO: Fix on macOS"))
     def test_attach_started_separately(self):
         lockfile = self.workspace.lockfile()
         done, waitscript = lockfile.wait_in_script()
@@ -331,6 +337,7 @@ class LifecycleTests(TestsBase, unittest.TestCase):
             self.new_event('terminated'),
         ])
 
+    @skipIf(sys.platform.startswith("mac", "TODO: Fix on macOS"))
     def test_attach_embedded(self):
         lockfile = self.workspace.lockfile()
         done, waitscript = lockfile.wait_in_script()
@@ -379,6 +386,7 @@ class LifecycleTests(TestsBase, unittest.TestCase):
         ])
         self.assertIn('success!', out)
 
+    @skipIf(sys.platform.startswith("mac", "TODO: Fix on macOS"))
     def test_reattach(self):
         lockfile1 = self.workspace.lockfile()
         done1, waitscript1 = lockfile1.wait_in_script(timeout=5)
